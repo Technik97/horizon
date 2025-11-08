@@ -1,46 +1,28 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
-	"strings"
+	"log"
+
+	"github.com/ergochat/readline"
 )
 
 func main() {
 	fmt.Println("Horizon version 0.0.1")
 	fmt.Println("Press Ctrl+c to Exit")
 
-	scanner := bufio.NewScanner(os.Stdin)
+	rl, err := readline.New("hrzn> ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rl.Close()
 
 	for {
-		fmt.Print("hrzn>")
-
-		if !scanner.Scan() {
-			break // EOF or error
+		line, err := rl.ReadLine()
+		if err != nil {
+			break // io.EOF or readline.ErrInterrupt (Ctrl+C)
 		}
 
-		input := strings.TrimSpace(scanner.Text())
-
-		// exit commands
-		if input == "exit" || input == "quit" {
-			break
-		}
-
-		// Skip empty input
-		if input == "" {
-			continue
-		}
-
-		fmt.Printf("%q\n", input)
+		fmt.Printf("%s\n", line)
 	}
-
-	if err := scanner.Err(); err != nil {
-		if err != io.EOF {
-			fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
-		}
-	}
-
-	fmt.Println("Goodbye!")
 }
