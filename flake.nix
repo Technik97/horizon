@@ -38,12 +38,26 @@
                         platforms = platforms.linux ++ platforms.darwin;
                     };
                 };
+
+                container = pkgs.dockerTools.buildLayeredImage {
+                    name = "horizon";
+                    tag = version;
+
+                    contents = [ horizon ];
+
+                    config = {
+                        Cmd = [ "horizon" ];  
+                    };    
+                };
             in {
                 packages.horizon = horizon;
                 packages.default = horizon;
 
+                packages.container = container;
+
                 apps.horizon = flake-utils.lib.mkApp { drv = horizon; };
                 apps.default = self.apps.${system}.horizon;
+
 
                 devShells.default = pkgs.mkShell {
                     name = "horizon-dev";
